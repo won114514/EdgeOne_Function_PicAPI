@@ -3,27 +3,6 @@ export function onRequest(context) {
   return handleRequest(context.request);
 }
 
-// 配置项
-var CONFIG = {
-  maxHorizontalImageNumber: 882,  // 横屏图片最大编号
-  maxVerticalImageNumber: 3289     // 竖屏图片最大编号
-};
-
-// 根据文件扩展名获取MIME类型
-function getMimeType(filename) {
-  var ext = filename.toLowerCase().split('.').pop();
-  var mimeTypes = {
-    'jpg': 'image/jpeg',
-    'jpeg': 'image/jpeg',
-    'png': 'image/png',
-    'gif': 'image/gif',
-    'webp': 'image/webp',
-    'bmp': 'image/bmp',
-    'svg': 'image/svg+xml'
-  };
-  return mimeTypes[ext] || 'image/webp';
-}
-
 // 检测是否为移动设备
 function isMobileDevice(userAgent) {
   if (!userAgent) return false;
@@ -53,72 +32,35 @@ async function handleRequest(request) {
     var url = new URL(request.url);
     var imgType = url.searchParams.get('img');
     
+    const maxHorizontalImageNumber = 882;
+    const maxVerticalImageNumber = 3289;
+
     if (imgType === 'h') {
       // 生成1到maxHorizontalImageNumber之间的随机数
-      var randomNum = Math.floor(Math.random() * CONFIG.maxHorizontalImageNumber) + 1;
-      var proxyUrl = 'https://cnb.cool/2x.nz/r3/-/git/raw/main/ri/h/' + randomNum + '.webp';
+      var randomNum = Math.floor(Math.random() * maxHorizontalImageNumber) + 1;
+      var imageUrl = '/ri/h/' + randomNum + '.webp';
       
-      // 发起反代请求
-      var proxyResponse = await fetch(proxyUrl, {
+      // 返回重定向
+      return new Response(null, {
+        status: 302,
         headers: {
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-          'User-Agent': request.headers.get('User-Agent') || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
-      });
-      
-      if (!proxyResponse.ok) {
-        return new Response('❌ 获取图片失败: ' + proxyResponse.status + ' ' + proxyResponse.statusText, {
-          status: proxyResponse.status,
-          headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-        });
-      }
-      
-      // 获取图片数据
-      var imageData = await proxyResponse.arrayBuffer();
-      
-      // 返回图片
-      return new Response(imageData, {
-        status: 200,
-        headers: {
-          'Content-Type': 'image/webp',
-          'Cache-Control': 'public, max-age=3600',
-          'Access-Control-Allow-Origin': '*',
-          'X-Image-Number': randomNum.toString(),
-          'X-Proxy-Url': proxyUrl
+          'Location': imageUrl,
+          'Cache-Control': 'no-cache',
+          'Access-Control-Allow-Origin': '*'
         }
       });
     } else if (imgType === 'v') {
       // 生成1到maxVerticalImageNumber之间的随机数
-      var randomNum = Math.floor(Math.random() * CONFIG.maxVerticalImageNumber) + 1;
-      var proxyUrl = 'https://cnb.cool/2x.nz/r3/-/git/raw/main/ri/v/' + randomNum + '.webp';
+      var randomNum = Math.floor(Math.random() * maxVerticalImageNumber) + 1;
+      var imageUrl = '/ri/v/' + randomNum + '.webp';
       
-      // 发起反代请求
-      var proxyResponse = await fetch(proxyUrl, {
+      // 返回重定向
+      return new Response(null, {
+        status: 302,
         headers: {
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-          'User-Agent': request.headers.get('User-Agent') || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
-      });
-      
-      if (!proxyResponse.ok) {
-        return new Response('❌ 获取图片失败: ' + proxyResponse.status + ' ' + proxyResponse.statusText, {
-          status: proxyResponse.status,
-          headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-        });
-      }
-      
-      // 获取图片数据
-      var imageData = await proxyResponse.arrayBuffer();
-      
-      // 返回图片
-      return new Response(imageData, {
-        status: 200,
-        headers: {
-          'Content-Type': 'image/webp',
-          'Cache-Control': 'public, max-age=3600',
-          'Access-Control-Allow-Origin': '*',
-          'X-Image-Number': randomNum.toString(),
-          'X-Proxy-Url': proxyUrl
+          'Location': imageUrl,
+          'Cache-Control': 'no-cache',
+          'Access-Control-Allow-Origin': '*'
         }
       });
     } else if (imgType === 'ua') {
@@ -128,66 +70,28 @@ async function handleRequest(request) {
       
       if (isMobile) {
         // 移动设备，返回竖屏图片
-        var randomNum = Math.floor(Math.random() * CONFIG.maxVerticalImageNumber) + 1;
-        var proxyUrl = 'https://cnb.cool/2x.nz/r3/-/git/raw/main/ri/v/' + randomNum + '.webp';
+        var randomNum = Math.floor(Math.random() * maxVerticalImageNumber) + 1;
+        var imageUrl = '/ri/v/' + randomNum + '.webp';
         
-        var proxyResponse = await fetch(proxyUrl, {
+        return new Response(null, {
+          status: 302,
           headers: {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-            'User-Agent': request.headers.get('User-Agent') || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          }
-        });
-        
-        if (!proxyResponse.ok) {
-          return new Response('❌ 获取图片失败: ' + proxyResponse.status + ' ' + proxyResponse.statusText, {
-            status: proxyResponse.status,
-            headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-          });
-        }
-        
-        var imageData = await proxyResponse.arrayBuffer();
-        
-        return new Response(imageData, {
-          status: 200,
-          headers: {
-            'Content-Type': 'image/webp',
-            'Cache-Control': 'public, max-age=3600',
-            'Access-Control-Allow-Origin': '*',
-            'X-Image-Number': randomNum.toString(),
-            'X-Proxy-Url': proxyUrl,
-            'X-Device-Type': 'mobile'
+            'Location': imageUrl,
+            'Cache-Control': 'no-cache',
+            'Access-Control-Allow-Origin': '*'
           }
         });
       } else {
         // 桌面设备，返回横屏图片
-        var randomNum = Math.floor(Math.random() * CONFIG.maxHorizontalImageNumber) + 1;
-        var proxyUrl = 'https://cnb.cool/2x.nz/r3/-/git/raw/main/ri/h/' + randomNum + '.webp';
+        var randomNum = Math.floor(Math.random() * maxHorizontalImageNumber) + 1;
+        var imageUrl = '/ri/h/' + randomNum + '.webp';
         
-        var proxyResponse = await fetch(proxyUrl, {
+        return new Response(null, {
+          status: 302,
           headers: {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-            'User-Agent': request.headers.get('User-Agent') || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          }
-        });
-        
-        if (!proxyResponse.ok) {
-          return new Response('❌ 获取图片失败: ' + proxyResponse.status + ' ' + proxyResponse.statusText, {
-            status: proxyResponse.status,
-            headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-          });
-        }
-        
-        var imageData = await proxyResponse.arrayBuffer();
-        
-        return new Response(imageData, {
-          status: 200,
-          headers: {
-            'Content-Type': 'image/webp',
-            'Cache-Control': 'public, max-age=3600',
-            'Access-Control-Allow-Origin': '*',
-            'X-Image-Number': randomNum.toString(),
-            'X-Proxy-Url': proxyUrl,
-            'X-Device-Type': 'desktop'
+            'Location': imageUrl,
+            'Cache-Control': 'no-cache',
+            'Access-Control-Allow-Origin': '*'
           }
         });
       }
@@ -197,10 +101,7 @@ async function handleRequest(request) {
       helpText += '使用方法:\n';
       helpText += '• ?img=h - 获取横屏随机图片\n';
       helpText += '• ?img=v - 获取竖屏随机图片\n';
-      helpText += '• ?img=ua - 根据设备类型自动选择图片\n\n';
-      helpText += '配置信息:\n';
-      helpText += '• 横屏图片最大编号: ' + CONFIG.maxHorizontalImageNumber + '\n';
-      helpText += '• 竖屏图片最大编号: ' + CONFIG.maxVerticalImageNumber + '\n';
+      helpText += '• ?img=ua - 根据设备类型自动选择图片\n';
       
       return new Response(helpText, {
         status: 200,
