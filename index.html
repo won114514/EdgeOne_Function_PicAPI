@@ -63,6 +63,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
+            margin-bottom: 30px;
         }
 
         .card {
@@ -82,6 +83,7 @@
             padding: 15px;
             font-weight: bold;
             color: var(--primary);
+            text-align: center;
         }
 
         .image-wrapper {
@@ -124,6 +126,36 @@
             text-align: center;
             margin-top: 20px;
             color: #718096;
+        }
+
+        .api-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: var(--neu-shadow);
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .api-section h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .api-call {
+            background: #2D3748;
+            color: #E2E8F0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+
+        .api-call-title {
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 5px;
         }
 
         @media (prefers-color-scheme: dark) {
@@ -179,23 +211,62 @@
             </div>
         </div>
 
+        <div class="api-section">
+            <h2>API 调用方式</h2>
+
+            <div class="api-call">
+                <div class="api-call-title">基本调用格式</div>
+                GET https://eopfapi.xiaowon.cn/pic?img={type}
+            </div>
+
+            <div class="api-call">
+                <div class="api-call-title">参数说明</div>
+                img=h - 获取横屏随机图片<br>
+                img=v - 获取竖屏随机图片<br>
+                img=ua - 根据设备类型自动选择图片
+            </div>
+
+            <div class="api-call">
+                <div class="api-call-title">在 HTML 中直接嵌入</div>
+                &lt;img src="https://eopfapi.xiaowon.cn/pic?img=ua" alt="随机二次元图片"&gt;
+            </div>
+
+            <div class="api-call">
+                <div class="api-call-title">在 JavaScript 中使用 Fetch API</div>
+                fetch('/pic?img=ua', { method: 'HEAD' })<br>
+                  .then(res => res.headers.get('Location'))<br>
+                  .then(url => console.log('图片地址:', url));
+            </div>
+
+            <div class="api-call">
+                <div class="api-call-title">在 CSS 中作为背景图片</div>
+                .my-element {<br>
+                    background-image: url('https://eopfapi.xiaowon.cn/pic?img=h');<br>
+                }
+            </div>
+
+            <div class="api-call">
+                <div class="api-call-title">在 Markdown 中使用</div>
+                ![随机二次元图片](https://eopfapi.xiaowon.cn/pic?img=v)
+            </div>
+
+            <div class="api-call">
+                <div class="api-call-title">在 Python 中请求</div>
+                import requests<br>
+                response = requests.head('https://eopfapi.xiaowon.cn/pic?img=ua')<br>
+                image_url = response.headers['Location']
+            </div>
+
+            <div class="api-call">
+                <div class="api-call-title">在 cURL 中测试</div>
+                curl -I "https://eopfapi.xiaowon.cn/pic?img=h"
+            </div>
+        </div>
+
         <footer>
             <p>© 2025 <a href="https://eopfapi.xiaowon.cn" style="color: inherit; text-decoration: none;">eopfapi.xiaowon.cn</a></p>
             <p>图片总数：横屏 882 张 / 竖屏 3289 张</p>
         </footer>
-
-        <h2>API 调用示例</h2>
-        <pre>
-&lt;!-- 直接在 HTML 中嵌入图片 --&gt;
-&lt;img src="https://eopfapi.xiaowon.cn/pic?img=ua" alt="随机二次元图片"&gt;
-
-&lt;!-- 使用 JavaScript 获取真实地址 --&gt;
-&lt;script&gt;
-fetch('/pic?img=ua', { method: 'HEAD' })
-  .then(res => res.headers.get('Location'))
-  .then(url => console.log('图片地址:', url));
-&lt;/script&gt;
-        </pre>
     </div>
 
     <script>
