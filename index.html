@@ -1,197 +1,232 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>二次元随机图片 API · eopfapi.xiaowon.cn</title>
-  <meta name="description" content="免费、高速、无广告的二次元横竖屏随机图片 API，支持自动设备适配。">
-  <style>
-    :root {
-      --bg: #ffffff;
-      --fg: #2d2d2d;
-      --card-bg: #f8f9fa;
-      --primary: #6200ea;
-      --primary-hover: #3700b3;
-      --border: #e0e0e0;
-      --error: #d32f2f;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #121212;
-        --fg: #e0e0e0;
-        --card-bg: #1e1e1e;
-        --border: #333;
-      }
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--fg);
-      line-height: 1.6;
-      padding: 20px;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    header {
-      text-align: center;
-      margin: 30px 0;
-    }
-    h1 {
-      font-size: 2.2em;
-      margin-bottom: 8px;
-      background: linear-gradient(90deg, #6200ea, #03dac6);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    .subtitle {
-      color: #888;
-      font-size: 1.1em;
-    }
-    .btn-group {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin: 24px 0;
-    }
-    button {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: background 0.2s;
-    }
-    button:hover {
-      background: var(--primary-hover);
-    }
-    .preview-box {
-      margin: 24px 0;
-      text-align: center;
-    }
-    #preview {
-      max-width: 100%;
-      height: auto;
-      border-radius: 12px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-      display: none;
-    }
-    .loading, .error {
-      margin-top: 16px;
-      display: none;
-    }
-    .loading {
-      color: var(--primary);
-    }
-    .error {
-      color: var(--error);
-    }
-    pre {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      padding: 16px;
-      border-radius: 10px;
-      overflow-x: auto;
-      margin: 20px 0;
-      font-size: 14px;
-      white-space: pre-wrap;
-    }
-    code {
-      background: var(--card-bg);
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-    footer {
-      margin-top: 40px;
-      text-align: center;
-      font-size: 0.9em;
-      color: #888;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <header>
-      <h1>🖼️ 二次元随机图片 API</h1>
-      <p class="subtitle">免费 · 高速 · 无广告 · 支持 CORS</p>
-    </header>
-
-    <div class="btn-group">
-      <button onclick="loadImage('h')">横屏图片</button>
-      <button onclick="loadImage('v')">竖屏图片</button>
-      <button onclick="loadImage('ua')">自动适配（推荐）</button>
-    </div>
-
-    <div class="preview-box">
-      <img id="preview" alt="二次元图片">
-      <div class="loading" id="loading">正在加载图片...</div>
-      <div class="error" id="error"></div>
-    </div>
-
-    <h2>📌 接口地址</h2>
-    <pre>GET https://eopfapi.xiaowon.cn/pic?img=h   <!-- 横屏 -->
-GET https://eopfapi.xiaowon.cn/pic?img=v   <!-- 竖屏 -->
-GET https://eopfapi.xiaowon.cn/pic?img=ua  <!-- 自动适配设备 --></pre>
-
-    <h2>💡 使用示例</h2>
-    <p>在 HTML 中直接嵌入：</p>
-    <pre>&lt;img src="https://eopfapi.xiaowon.cn/pic?img=ua" alt="二次元图"&gt;</pre>
-
-    <p>在 JavaScript 中获取真实地址：</p>
-    <pre>fetch('/pic?img=ua', { method: 'HEAD' })
-  .then(res => res.headers.get('Location'))
-  .then(url => console.log('图片地址:', url));</pre>
-
-    <footer>
-      <p>© 2025 eopfapi.xiaowon.cn · 图片总数：横屏 882 张 / 竖屏 3289 张</p>
-    </footer>
-  </div>
-
-  <script>
-    const preview = document.getElementById('preview');
-    const loading = document.getElementById('loading');
-    const errorEl = document.getElementById('error');
-
-    function resetUI() {
-      preview.style.display = 'none';
-      loading.style.display = 'none';
-      errorEl.style.display = 'none';
-    }
-
-    async function loadImage(type) {
-      resetUI();
-      loading.style.display = 'block';
-
-      try {
-        const res = await fetch('/pic?img=' + type, { method: 'HEAD' });
-        if (res.status === 302 || res.redirected) {
-          const loc = res.headers.get('Location');
-          if (!loc) throw new Error('缺少 Location 头');
-          preview.src = loc;
-          preview.onload = () => {
-            loading.style.display = 'none';
-            preview.style.display = 'inline-block';
-          };
-          preview.onerror = () => {
-            loading.style.display = 'none';
-            errorEl.textContent = '❌ 图片加载失败';
-            errorEl.style.display = 'block';
-          };
-        } else {
-          throw new Error('非 302 响应');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二次元随机图片 API · eopfapi.xiaowon.cn</title>
+    <style>
+        :root {
+            --bg: #F3F4F6;
+            --fg: #1A202C;
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --primary: #6200EA;
+            --secondary: #03DAC6;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --neu-shadow: 5px 5px 10px var(--shadow-color), -5px -5px 10px var(--shadow-color);
+            --font-family: 'Helvetica Neue', Arial, sans-serif;
         }
-      } catch (err) {
-        loading.style.display = 'none';
-        errorEl.textContent = '❌ 请求失败：' + (err.message || '未知错误');
-        errorEl.style.display = 'block';
-      }
-    }
-  </script>
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg);
+            color: var(--fg);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: var(--neu-shadow);
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 0;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: #718096;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: var(--neu-shadow);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card-header {
+            padding: 15px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .image-wrapper {
+            position: relative;
+            aspect-ratio: 16/9;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .card-footer {
+            padding: 10px;
+            text-align: center;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: var(--secondary);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #718096;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #1A202C;
+                --fg: #F3F4F6;
+                --glass-bg: rgba(255, 255, 255, 0.7);
+                --shadow-color: rgba(255, 255, 255, 0.1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🖼️ 二次元随机图片 API</h1>
+            <p class="subtitle">免费 · 高速 · 无广告 · 支持 CORS · 自动适配设备</p>
+        </header>
+
+        <div class="gallery">
+            <!-- 横屏 -->
+            <div class="card">
+                <div class="card-header">🖥️ 横屏图片 (h)</div>
+                <div class="image-wrapper" id="wrapper-h">
+                    <img src="/pic?img=h" alt="横屏图" onload="onLoad(this)" onerror="onError(this)">
+                </div>
+                <div class="card-footer">
+                    <button onclick="refresh('h')">🔄 换一张</button>
+                </div>
+            </div>
+
+            <!-- 竖屏 -->
+            <div class="card">
+                <div class="card-header">📱 竖屏图片 (v)</div>
+                <div class="image-wrapper" id="wrapper-v">
+                    <img src="/pic?img=v" alt="竖屏图" onload="onLoad(this)" onerror="onError(this)">
+                </div>
+                <div class="card-footer">
+                    <button onclick="refresh('v')">🔄 换一张</button>
+                </div>
+            </div>
+
+            <!-- 自动适配 -->
+            <div class="card">
+                <div class="card-header">🤖 自动适配 (ua)</div>
+                <div class="image-wrapper" id="wrapper-ua">
+                    <img src="/pic?img=ua" alt="自动适配图" onload="onLoad(this)" onerror="onError(this)">
+                </div>
+                <div class="card-footer">
+                    <button onclick="refresh('ua')">🔄 换一张</button>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2025 <a href="https://eopfapi.xiaowon.cn" style="color: inherit; text-decoration: none;">eopfapi.xiaowon.cn</a></p>
+            <p>图片总数：横屏 882 张 / 竖屏 3289 张</p>
+        </footer>
+
+        <h2>API 调用示例</h2>
+        <pre>
+&lt;!-- 直接在 HTML 中嵌入图片 --&gt;
+&lt;img src="https://eopfapi.xiaowon.cn/pic?img=ua" alt="随机二次元图片"&gt;
+
+&lt;!-- 使用 JavaScript 获取真实地址 --&gt;
+&lt;script&gt;
+fetch('/pic?img=ua', { method: 'HEAD' })
+  .then(res => res.headers.get('Location'))
+  .then(url => console.log('图片地址:', url));
+&lt;/script&gt;
+        </pre>
+    </div>
+
+    <script>
+        function getWrapper(type) {
+            return document.getElementById(`wrapper-${type}`);
+        }
+
+        function onLoad(img) {
+            const wrapper = img.closest('.image-wrapper');
+            wrapper.classList.remove('loading', 'error');
+        }
+
+        function onError(img) {
+            const wrapper = img.closest('.image-wrapper');
+            wrapper.classList.add('error');
+        }
+
+        function refresh(type) {
+            const wrapper = getWrapper(type);
+            const img = wrapper.querySelector('img');
+            // 添加时间戳绕过缓存
+            img.src = `/pic?img=${type}&_t=${Date.now()}`;
+            wrapper.classList.add('loading');
+            wrapper.classList.remove('error');
+        }
+
+        // 初始化时添加 loading 状态（可选）
+        document.querySelectorAll('.image-wrapper').forEach(w => {
+            w.classList.add('loading');
+        });
+    </script>
 </body>
+
 </html>
