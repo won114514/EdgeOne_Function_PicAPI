@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>二次元随机图片 API · Modern UI</title>
+  <title>二次元随机图片 API</title>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -574,29 +574,37 @@ HTTP/1.1 400 Bad Request
 
     <!-- Code Tabs -->
     <div class="api-block">
-      <div class="api-title">调用示例</div>
+      <div class="api-title">HTML / JS / CSS 嵌入方式</div>
       <div class="tabs">
-        <button class="tab active" onclick="switchTab('js')">JavaScript</button>
-        <button class="tab" onclick="switchTab('py')">Python</button>
-        <button class="tab" onclick="switchTab('curl')">cURL</button>
+        <button class="tab active" onclick="switchTab('html')">HTML 直接嵌入</button>
+        <button class="tab" onclick="switchTab('js')">JavaScript 动态加载</button>
+        <button class="tab" onclick="switchTab('css')">CSS 背景图</button>
       </div>
 
-      <div class="tab-content active" id="tab-js">
+      <div class="tab-content active" id="tab-html">
         <button class="copy" onclick="copyCode(this)">复制</button>
-        <pre><code>fetch('https://eopfapi.xiaowon.cn/pic?img=ua', { method: 'HEAD' })
-  .then(r => r.headers.get('Location'));</code></pre>
+        <pre><code>&lt;!-- 直接在 HTML 中插入图片 --&gt;
+&lt;img src="https://eopfapi.xiaowon.cn/pic?img=ua" alt="二次元图片"&gt;</code></pre>
       </div>
 
-      <div class="tab-content" id="tab-py">
+      <div class="tab-content" id="tab-js">
         <button class="copy" onclick="copyCode(this)">复制</button>
-        <pre><code>import requests
-r = requests.head('https://eopfapi.xiaowon.cn/pic?img=ua')
-print(r.headers['Location'])</code></pre>
+        <pre><code>// 使用 JavaScript 获取并设置图片
+fetch('https://eopfapi.xiaowon.cn/pic?img=ua', { method: 'HEAD' })
+  .then(res => {
+    const imageUrl = res.headers.get('Location');
+    document.getElementById('myImage').src = imageUrl;
+  });</code></pre>
       </div>
 
-      <div class="tab-content" id="tab-curl">
+      <div class="tab-content" id="tab-css">
         <button class="copy" onclick="copyCode(this)">复制</button>
-        <pre><code>curl -I "https://eopfapi.xiaowon.cn/pic?img=h"</code></pre>
+        <pre><code>/* 将图片作为 CSS 背景 */
+.hero-bg {
+  background-image: url('https://eopfapi.xiaowon.cn/pic?img=h');
+  background-size: cover;
+  background-position: center;
+}</code></pre>
       </div>
     </div>
   </section>
@@ -625,7 +633,7 @@ print(r.headers['Location'])</code></pre>
       // Show selected tab content
       document.getElementById(`tab-${tabName}`).classList.add('active');
       
-      // Add active class to selected tab
+      // Add active class to clicked tab
       event.target.classList.add('active');
     }
 
